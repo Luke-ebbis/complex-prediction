@@ -17,3 +17,7 @@ pixi run help
 
 # Later code
 ```
+
+## Steps
+
+![Steps of the pipeline](resources/pipeline.png)
