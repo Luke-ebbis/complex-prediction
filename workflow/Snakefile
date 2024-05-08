@@ -6,7 +6,8 @@ rule all:
   input:
     # The to be processed input files
     expand("results/{complex}/data/input.json",
-        complex=INPUTS)
+        complex=INPUTS),
+    "results/checkpoints/setup_combfold"
 
 def getInputNames(wildcards):
   """
@@ -20,7 +21,7 @@ def getInputNames(wildcards):
   return inputs
 
 
-## preprocess:      Preprocess the input JSON files.
+## preprocess:                Preprocess the input JSON files.
 rule preprocess:
   """When the sequences are too long to predict, cut them
 
@@ -35,13 +36,35 @@ rule preprocess:
     cp {input} {output}
     """
 
-## help:            Show the help.
+rule setup_combfold:
+  output:
+    touch("results/checkpoints/setup_combfold")
+  shell:
+    """
+    echo "setting up combfold"
+    cd workflow/scripts/dependencies/CombFold
+    echo "We are in CombFold:"
+    ls
+    unset PIXI_PROJECT_MANIFEST
+    pixi run make
+    """
+
+## produce_fasta:             Convert the json's to fasta inputs.
+rule produce_fasta:
+  input:
+    "results/{complex}/data/input.json"
+  shell:
+    """
+    pixi run python3 scripts/prepare_fastas.py subunits.json --stage pairs --output-fasta-folder <path_to_output_folder> --max-af-size 1800
+    """
+
+## help:                      Show the help.
 rule help:
     input: "workflow/Snakefile"
     shell:
         "sed -n 's/^##//p' {input}"
 
-## clean:           Clean all outputs
+## clean:                     Clean all outputs
 rule clean:
     shell:
         "rm -rf results/*"
