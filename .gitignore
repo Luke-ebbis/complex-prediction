@@ -162,3 +162,7 @@ cython_debug/
 .pixi
 *.egg-info
 
+
+data/
+result
+.snakemake
