@@ -12,5 +12,8 @@ steps:
 # Install pixi
 curl -fsSL https://pixi.sh/install.sh | bash
 
+# Print the help
+pixi run help
+
 # Later code
 ```
