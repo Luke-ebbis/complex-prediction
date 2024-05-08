@@ -11,7 +11,7 @@ INPUTS=[name.replace('.json', '') for name in os.listdir("data/") if name.endswi
 rule all:
   input:
     # The to be processed input files
-    expand("results/{complex}/data/input.json",
+    expand("results/data/{complex}/input.json",
         complex=INPUTS),
     "results/checkpoints/setup_combfold"
 
@@ -36,7 +36,7 @@ rule preprocess:
   input:
     "data/{complex}.json"
   output:
-    "results/{complex}/data/input.json"
+    "results/data/{complex}/input.json"
   shell:
     """
     cp {input} {output}
@@ -60,10 +60,16 @@ rule setup_combfold:
 ## produce_fasta:             Convert the json's to fasta inputs.
 rule produce_fasta:
   input:
-    "results/{complex}/data/input.json"
+    "results/data/{complex}/input.json"
+  output:
+    directory("results/data/{complex}/data/")
   shell:
     """
-    pixi run python3 scripts/prepare_fastas.py subunits.json --stage pairs --output-fasta-folder <path_to_output_folder> --max-af-size 1800
+    cd workflow/scripts/dependencies/CombFold
+    unset PIXI_PROJECT_MANIFEST
+    pixi run python3 scripts/prepare_fastas.py ../../../../{input} \
+      --stage pairs --output-fasta-folder ../../../../{output} \
+      --max-af-size 1800
     """
 
 ## help:                      Show the help.
