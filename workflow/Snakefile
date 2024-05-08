@@ -47,6 +47,8 @@ rule setup_combfold:
     ls
     unset PIXI_PROJECT_MANIFEST
     pixi run make
+    echo "compilation seems to have been a success!"
+    ./CombinatorialAssembler/AF2trans.out --help
     """
 
 ## produce_fasta:             Convert the json's to fasta inputs.
