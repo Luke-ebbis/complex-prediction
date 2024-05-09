@@ -18,4 +18,5 @@ update_dag = "snakemake --quiet all -c 1 'results/method.png' && mv results/meth
 [dependencies]
 colabfold = ">=1.5.5,<1.6"
 snakemake = ">=7.32.4,<7.33"
+conda = ">=24.4.0,<24.5"
 
