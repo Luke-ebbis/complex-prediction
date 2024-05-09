@@ -13,7 +13,7 @@ start = {cmd = "snakemake --use-conda", depends_on = ["update_submodules"]}
 make = "snakemake --use-conda -c 1"
 t = "tree -L 3"
 help  = "snakemake help -c 1 --quiet all"
-update_dag = "snakemake --quiet all -c 1 'results/method.png' && mv results/method.png resources"
+update_dag = "snakemake --quiet all -c 1 'results/method.png' && mv results/method.png resources; mv resources/method.png resources/pipeline.png"
 
 [dependencies]
 curl = ">=8.7.1,<8.8"
