@@ -15,6 +15,8 @@ rule all:
         protein_complex=INPUTS),
     "results/checkpoints/setup_combfold",
     expand("results/data/{protein_complex}/subunits/pdb",
+        protein_complex=INPUTS),
+    expand("results/data/{protein_complex}/subunits/combfold",
         protein_complex=INPUTS)
 
 
@@ -48,7 +50,7 @@ rule setup_combfold:
     ./CombinatorialAssembler/AF2trans.out --help
     """
 
-## produce_fasta:             Convert the json's to fasta inputs.
+## produce_fasta:               Convert the json's to fasta inputs.
 rule produce_fasta:
   input:
     "results/data/{protein_complex}/{protein_complex}.json"
@@ -68,6 +70,27 @@ rule predict_colabfold:
     "results/data/{protein_complex}/subunits/fasta"
   output:
     directory("results/data/{protein_complex}/subunits/pdb/")
+
+
+## combfold:                    Calculate the complexes from the JSON
+##                              file.
+rule combfold:
+  input:
+    json="results/data/{protein_complex}/{protein_complex}.json",
+    pdb="results/data/{protein_complex}/subunits/pdb"
+    "results/checkpoints/setup_combfold"
+  output:
+    directory("results/data/{protein_complex}/subunits/combfold")
+  shell:
+    """
+    cd workflow/scripts/dependencies/CombFold
+    unset PIXI_PROJECT_MANIFEST
+    pixi run python3 scripts/run_on_pdbs.py ../../../../{input.json}  \
+      ../../../../{input.pdb} output-{wildcards.protein_complex}
+    echo "made the following files in output"
+    mkdir ../../../../{output} -p
+    mv output-{wildcards.protein_complex}/* ../../../../{output}
+    """
 
 ## help:                      Show the help.
 rule help:
