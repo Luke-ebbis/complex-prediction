@@ -10,7 +10,6 @@ platforms = ["linux-64"]
 download_submodules = "git submodule init; git submodule update"
 update_submodules = {cmd = "git submodule update --remote --merge", depends_on = ['download_submodules']}
 start = {cmd = "snakemake --use-conda", depends_on = ["update_submodules"]}
-make = "snakemake --use-conda -c 1"
 t = "tree results -L 5"
 help  = "snakemake help -c 1 --quiet all"
 update_dag = "snakemake --quiet all -c 1 'results/method.png' && mv results/method.png resources; mv resources/method.png resources/pipeline.png"
@@ -19,4 +18,13 @@ update_dag = "snakemake --quiet all -c 1 'results/method.png' && mv results/meth
 colabfold = ">=1.5.5,<1.6"
 snakemake = ">=7.32.4,<7.33"
 conda = ">=24.4.0,<24.5"
+
+[feature.cuda.pypi-dependencies]
+jax = { version = "*", extras = ["cuda12-pip"] }
+
+[feature.cuda.tasks]
+make = "snakemake --use-conda -c 1"
+
+[environments]
+cuda = ["cuda"]
 
