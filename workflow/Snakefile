@@ -85,17 +85,10 @@ COMPLEX_COMBINATIONS = protein_complex_combinations([f"data/{file}.json" for fil
 
 rule all:
   input:
-    # Requirement to install combfold
-    "results/checkpoints/setup_combfold",
-    # Fasta files for all inputs
-    expand("results/data/{complex}/{complex}.json",
-        complex=INPUTS),
-    # fasta files for each pairing
-    expand("results/data/{complex}/subunits/fasta",
-        complex=INPUTS),
-    # pdb files for each pairing
-    expand("results/data/{complex}/subunits/pdb",
-        complex=INPUTS),
+    # The to be processed input files
+    expand("results/data/{protein_complex}/subunits/combfold",
+        protein_complex=INPUTS)
+
 
 ## Rules:
 ## preprocess:                Preprocess the input JSON files.
@@ -128,7 +121,7 @@ rule setup_combfold:
     ./CombinatorialAssembler/AF2trans.out --help
     """
 
-## produce_fasta:             Convert the json's to fasta inputs.
+## produce_fasta:               Convert the json's to fasta inputs.
 rule produce_fasta:
   input:
     "results/data/{protein_complex}/{protein_complex}.json"
@@ -160,6 +153,28 @@ rule predict_colabfold:
         --num-models 1 > ../../../../{log} 2>&1
     """
 
+
+
+
+## combfold:                    Calculate the complexes from the JSON
+##                              file.
+rule combfold:
+  input:
+    "results/checkpoints/setup_combfold",
+    json="results/data/{protein_complex}/{protein_complex}.json",
+    pdb="results/data/{protein_complex}/subunits/pdb"
+  output:
+    directory("results/data/{protein_complex}/subunits/combfold")
+  shell:
+    """
+    cd workflow/scripts/dependencies/CombFold
+    unset PIXI_PROJECT_MANIFEST
+    pixi run python3 scripts/run_on_pdbs.py ../../../../{input.json}  \
+      ../../../../{input.pdb} output-{wildcards.protein_complex}
+    echo "made the following files in output"
+    mkdir ../../../../{output} -p
+    mv output-{wildcards.protein_complex}/* ../../../../{output}
+    """
 
 ## help:                      Show the help.
 rule help:
