@@ -121,7 +121,7 @@ rule setup_combfold:
     ./CombinatorialAssembler/AF2trans.out --help
     """
 
-## produce_fasta:               Convert the json's to fasta inputs.
+## produce_fasta:             Convert the json's to fasta inputs.
 rule produce_fasta:
   input:
     "results/data/{protein_complex}/{protein_complex}.json"
@@ -138,7 +138,7 @@ rule produce_fasta:
       --max-af-size 1800
     """
 
-rule predict_colabfold:
+rule colabfold_batch:
   input:
     "results/data/{protein_complex}/subunits/fasta"
   output:
@@ -147,16 +147,14 @@ rule predict_colabfold:
     "logs/{protein_complex}/colabfold.log"
   shell:
     """
-    cd workflow/scripts/dependencies/CombFold
-    unset PIXI_PROJECT_MANIFEST 
-    pixi run colabfold_batch ../../../../{input} ../../../../{output} \
-        --num-models 1 > ../../../../{log} 2>&1
+    pixi run colabfold_batch {input} {output} \
+        --num-models 1 > {log} 2>&1
     """
 
 
 
 
-## combfold:                    Calculate the complexes from the JSON
+## combfold:                  Calculate the complexes from the JSON
 ##                              file.
 rule combfold:
   input:
