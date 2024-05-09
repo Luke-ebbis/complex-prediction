@@ -23,7 +23,7 @@ def protein_complex_combinations(json_files):
   return names
 
 
-def determine_pairing(subunits_dict, ext="pdb"):
+def determine_pairing_result_files(subunits_dict, ext="pdb"):
 
   def target_dir(protein_complex, pairing, ext):
     return f"results/data/{protein_complex}/subunits/{ext}/{pairing}.{ext}"
@@ -82,7 +82,6 @@ def colabfold_logs(wildcards):
 COMPLEX_COMBINATIONS = protein_complex_combinations([f"data/{file}.json" for file in INPUTS])
 
 
-PAIRING_TARGETS = determine_pairing(COMPLEX_COMBINATIONS, ext="fasta")
 
 rule all:
   input:
@@ -91,9 +90,12 @@ rule all:
     # Fasta files for all inputs
     expand("results/data/{complex}/{complex}.json",
         complex=INPUTS),
-    # # PDB files for each pairing
-    # expand("results/data/{complex}/subunits/pdb",
-    #     complex=INPUTS),
+    # fasta files for each pairing
+    expand("results/data/{complex}/subunits/fasta",
+        complex=INPUTS),
+    # pdb files for each pairing
+    expand("results/data/{complex}/subunits/pdb",
+        complex=INPUTS),
 
 ## Rules:
 ## preprocess:                Preprocess the input JSON files.
@@ -143,21 +145,20 @@ rule produce_fasta:
       --max-af-size 1800
     """
 
-# rule predict_colabfold:
-  # input:
-    # files=fasta_inputs
-  # output:
-     # pdb_files=expand("results/data/{protein_complex}/subunits/pdb/{pairing}.pdb",
-            # protein_complex=wildcards.protein_complex,
-            # pairing=determine_pairing_names_for_complex(wildcards.protein_complex))
-  # log:
-   # colabfold_logs
-  # shell:
-    # """
-    # cd workflow/scripts/dependencies/CombFold
-    # unset PIXI_PROJECT_MANIFEST
-    # pixi run colabfold_batch {}
-    # """
+rule predict_colabfold:
+  input:
+    "results/data/{protein_complex}/subunits/fasta"
+  output:
+    directory("results/data/{protein_complex}/subunits/pdb/")
+  log:
+    "logs/{protein_complex}/colabfold.log"
+  shell:
+    """
+    cd workflow/scripts/dependencies/combfold
+    unset pixi_project_manifest
+    pixi run colabfold_batch ../../../../{input} ../../../../{output} \
+        --num-models 1 > ../../../../{log} 2>&1
+    """
 
 
 ## help:                      Show the help.
