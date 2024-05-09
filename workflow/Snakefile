@@ -148,7 +148,7 @@ rule colabfold_batch:
     "logs/{protein_complex}/colabfold.log"
   shell:
     """
-    pixi run colabfold_batch {input} {output} \
+    pixi run -e cuda colabfold_batch {input} {output} \
         --num-models 1 > {log} 2>&1
     """
 
