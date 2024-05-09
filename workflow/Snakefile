@@ -91,9 +91,9 @@ rule all:
     # Fasta files for all inputs
     expand("results/data/{complex}/{complex}.json",
         complex=INPUTS),
-    # PDB files for each pairing
-    expand("results/data/{complex}/subunits/pdb",
-        complex=INPUTS),
+    # # PDB files for each pairing
+    # expand("results/data/{complex}/subunits/pdb",
+    #     complex=INPUTS),
 
 ## Rules:
 ## preprocess:                Preprocess the input JSON files.
@@ -143,21 +143,21 @@ rule produce_fasta:
       --max-af-size 1800
     """
 
-rule predict_colabfold:
-  input:
-    files=fasta_inputs
-  output:
-     pdb_files=expand("results/data/{protein_complex}/subunits/pdb/{pairing}.pdb",
-            protein_complex=wildcards.protein_complex,
-            pairing=determine_pairing_names_for_complex(wildcards.protein_complex))
-  log:
-   colabfold_logs
-  shell:
-    """
-    cd workflow/scripts/dependencies/CombFold
-    unset PIXI_PROJECT_MANIFEST
-    pixi run colabfold_batch {}
-    """
+# rule predict_colabfold:
+  # input:
+    # files=fasta_inputs
+  # output:
+     # pdb_files=expand("results/data/{protein_complex}/subunits/pdb/{pairing}.pdb",
+            # protein_complex=wildcards.protein_complex,
+            # pairing=determine_pairing_names_for_complex(wildcards.protein_complex))
+  # log:
+   # colabfold_logs
+  # shell:
+    # """
+    # cd workflow/scripts/dependencies/CombFold
+    # unset PIXI_PROJECT_MANIFEST
+    # pixi run colabfold_batch {}
+    # """
 
 
 ## help:                      Show the help.
