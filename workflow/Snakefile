@@ -11,9 +11,11 @@ INPUTS=[name.replace('.json', '') for name in os.listdir("data/") if name.endswi
 rule all:
   input:
     # The to be processed input files
-    expand("results/data/{complex}/input.json",
-        complex=INPUTS),
-    "results/checkpoints/setup_combfold"
+    expand("results/data/{protein_complex}/{protein_complex}.json",
+        protein_complex=INPUTS),
+    "results/checkpoints/setup_combfold",
+    expand("results/data/{protein_complex}/subunits/pdb",
+        protein_complex=INPUTS)
 
 
 ## preprocess:                Preprocess the input JSON files.
@@ -23,9 +25,9 @@ rule preprocess:
   Note not yet implemented yet
   """
   input:
-    "data/{complex}.json"
+    "data/{protein_complex}.json"
   output:
-    "results/data/{complex}/input.json"
+    "results/data/{protein_complex}/input.json"
   shell:
     """
     cp {input} {output}
@@ -49,9 +51,9 @@ rule setup_combfold:
 ## produce_fasta:             Convert the json's to fasta inputs.
 rule produce_fasta:
   input:
-    "results/data/{complex}/input.json"
+    "results/data/{protein_complex}/{protein_complex}.json"
   output:
-    directory("results/data/{complex}/data/")
+    directory("results/data/{protein_complex}/data/")
   shell:
     """
     cd workflow/scripts/dependencies/CombFold
@@ -60,6 +62,12 @@ rule produce_fasta:
       --stage pairs --output-fasta-folder ../../../../{output} \
       --max-af-size 1800
     """
+
+rule predict_colabfold:
+  input:
+    "results/data/{protein_complex}/subunits/fasta"
+  output:
+    directory("results/data/{protein_complex}/subunits/pdb/")
 
 ## help:                      Show the help.
 rule help:
