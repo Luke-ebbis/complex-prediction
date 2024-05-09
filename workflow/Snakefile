@@ -15,17 +15,6 @@ rule all:
         complex=INPUTS),
     "results/checkpoints/setup_combfold"
 
-def getInputNames(wildcards):
-  """
-
-  See: https://stackoverflow.com/a/56934990
-  """
-  inputs = list()
-  for s in os.listdir("data/"+wildcards.sample):
-      input.append(os.path.join("data/",wildcards.sample,s))
-  print(f"found input files {input}")
-  return inputs
-
 
 ## preprocess:                Preprocess the input JSON files.
 rule preprocess:
