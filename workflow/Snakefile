@@ -155,7 +155,7 @@ rule predict_colabfold:
   shell:
     """
     cd workflow/scripts/dependencies/CombFold
-    unset pixi_project_manifest
+    unset PIXI_PROJECT_MANIFEST 
     pixi run colabfold_batch ../../../../{input} ../../../../{output} \
         --num-models 1 > ../../../../{log} 2>&1
     """
