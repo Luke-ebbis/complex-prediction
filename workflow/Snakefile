@@ -76,9 +76,9 @@ rule predict_colabfold:
 ##                              file.
 rule combfold:
   input:
+    "results/checkpoints/setup_combfold",
     json="results/data/{protein_complex}/{protein_complex}.json",
     pdb="results/data/{protein_complex}/subunits/pdb"
-    "results/checkpoints/setup_combfold"
   output:
     directory("results/data/{protein_complex}/subunits/combfold")
   shell:
