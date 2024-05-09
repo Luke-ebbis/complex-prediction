@@ -122,6 +122,14 @@ rule setup_combfold:
     ./CombinatorialAssembler/AF2trans.out --help
     """
 
+
+## setup_cuda:                Use the cuda hardware for computation.
+rule setup_cuda:
+  output:
+    touch("results/checkpoints/setup_cuda")
+  script:
+    "scripts/dependencies/setup-cuda.sh"
+
 ## produce_fasta:             Convert the json's to fasta inputs.
 rule produce_fasta:
   input:
@@ -141,14 +149,15 @@ rule produce_fasta:
 
 rule colabfold_batch:
   input:
-    "results/data/{protein_complex}/subunits/fasta"
+    checkpoint="results/checkpoints/setup_cuda",
+    fasta="results/data/{protein_complex}/subunits/fasta"
   output:
     directory("results/data/{protein_complex}/subunits/pdb/")
   log:
     "logs/{protein_complex}/colabfold.log"
   shell:
     """
-    pixi run -e cuda colabfold_batch {input} {output} \
+    pixi run colabfold_batch {input.fasta} {output} \
         --num-models 1 > {log} 2>&1
     """
 
