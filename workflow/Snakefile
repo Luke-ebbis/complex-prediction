@@ -90,7 +90,8 @@ rule all:
         protein_complex=INPUTS)
 
 
-## Rules:
+## Rules
+## ------
 ## preprocess:                Preprocess the input JSON files.
 rule preprocess:
   """When the sequences are too long to predict, cut them
@@ -176,9 +177,17 @@ rule combfold:
 
 ## help:                      Show the help.
 rule help:
-    input: "workflow/Snakefile"
-    shell:
-        "sed -n 's/^##//p' {input}"
+  input: "workflow/Snakefile"
+  shell:
+      "sed -n 's/^##//p' {input}"
+
+## version                    Show the version.
+rule version:
+  shell:
+    """
+    git describe --tags --abbrev=0
+    """
+    
 
 ## clean:                     Clean all outputs
 rule clean:
