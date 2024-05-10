@@ -44,3 +44,7 @@ tasks = {train = "python train.py --cuda"}
 [environments]
 # all environments include the default feature
 cuda = ["cuda"] # This is read as ["default", "cuda"]
+
+
+
+Here mol and CAVER will be installed somehow
