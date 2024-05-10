@@ -167,6 +167,12 @@ rule colabfold_batch:
 ## combfold:                  Calculate the complexes from the JSON
 ##                              file.
 rule combfold:
+  """Run the combfold programme
+
+  Note --- If a high scoring assembly cannot be found, the programme will
+            exit with a nonzero exit code. That is why the usage of 
+            `set +e` is needed.
+  """
   input:
     "results/checkpoints/setup_combfold",
     json="results/data/{protein_complex}/{protein_complex}.json",
@@ -175,6 +181,7 @@ rule combfold:
     directory("results/data/{protein_complex}/subunits/combfold")
   shell:
     """
+    set +e
     cd workflow/scripts/dependencies/CombFold
     unset PIXI_PROJECT_MANIFEST
     pixi run python3 scripts/run_on_pdbs.py ../../../../{input.json}  \
