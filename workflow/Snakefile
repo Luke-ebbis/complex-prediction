@@ -113,7 +113,7 @@ rule run_internet_rules:
   input:
     "results/checkpoints/setup_cuda"
     "results/checkpoints/setup_combfold"
-    'results/checkpoints/setup_msa_complete'
+    "results/data/{protein_complex}/subunits/fold-msa"
   output:
     touch("results/setup/ran_internet_dependencies")
       
