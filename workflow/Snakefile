@@ -127,7 +127,7 @@ rule setup_combfold:
     touch("results/checkpoints/setup_combfold")
   shell:
     """
-    pixi run make update_submodules
+    pixi run update_submodules
     echo "setting up combfold"
     cd workflow/scripts/dependencies/CombFold
     echo "We are in CombFold:"
