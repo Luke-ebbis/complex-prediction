@@ -164,7 +164,7 @@ rule produce_fasta:
 rule colabfold_batch:
   input:
     # checkpoint="results/checkpoints/setup_cuda",
-    fasta="results/data/{protein_complex}/subunits/fasta"
+    fasta="results/data/{protein_complex}/subunits/fold-msa"
   output:
     directory("results/data/{protein_complex}/subunits/pdb/")
   log:
