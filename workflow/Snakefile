@@ -35,6 +35,13 @@ rule preprocess:
     cp {input} {output}
     """
 
+rule run_internet_rules:
+    """This rule completes all tasks that need internet.
+    """
+    input:
+      
+
+## setup_combfold:              Compile the COMBFOLD programme. 
 rule setup_combfold:
   output:
     touch("results/checkpoints/setup_combfold")
