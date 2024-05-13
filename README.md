@@ -16,6 +16,11 @@ curl -fsSL https://pixi.sh/install.sh | bash
 pixi run help
 
 # Later code
+
+# Before running the pipeline, you must
+# load the dependencies specified as git
+# submodules
+pixi run update_dependencies
 ```
 
 ## Steps
