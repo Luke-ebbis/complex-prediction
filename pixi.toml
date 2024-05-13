@@ -10,28 +10,20 @@ platforms = ["linux-64"]
 download_submodules = "git submodule init; git submodule update"
 update_submodules = {cmd = "git submodule update --remote --merge", depends_on = ['download_submodules']}
 start = {cmd = "snakemake --use-conda", depends_on = ["update_submodules"]}
-make = "snakemake --use-conda -c 1"
-t = "tree -L 3"
+t = "tree results -L 5"
 help  = "snakemake help -c 1 --quiet all"
+make = "snakemake --use-conda -c 1"
 update_dag = "snakemake --quiet all -c 1 'results/method.png' && mv results/method.png resources; mv resources/method.png resources/pipeline.png"
 
+
 [dependencies]
-curl = ">=8.7.1,<8.8"
-snakemake = ">=8.10.8,<8.11"
-conda = ">=24.3.0,<24.4"
-tree = ">=2.1.1,<2.2"
-mamba = ">=1.5.8,<1.6"
-wget = ">=1.21.4,<1.22"
-findutils = ">=4.6.0,<4.7"
-python = ">=3.12.3,<3.13"
-biopython = ">=1.83,<2"
-jupyter = ">=1.0.0,<1.1"
-gzip = ">=1.13,<2"
-jq = ">=1.7.1,<1.8"
-graphviz = ">=9.0.0,<9.1"
+colabfold = ">=1.5.5,<1.6"
+snakemake = ">=7.32.4,<7.33"
+conda = ">=24.4.0,<24.5"
+pip = ">=24.0,<25"
+immutabledict = ">=4.2.0,<4.3"
 
+[pypi-dependencies]
+jax = { version = "*", extras = ["cuda12-pip"] }
 
-# Run the pipeline on old linux
-[system-requirements]
-linux="4.18"
 
