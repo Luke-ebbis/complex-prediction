@@ -111,10 +111,14 @@ rule run_internet_rules:
   """This rule completes all tasks that need internet.
   """
   input:
-    "results/checkpoints/setup_cuda"
+    "results/checkpoints/setup_cuda",
     "results/checkpoints/setup_combfold"
   output:
-    touch("results/setup/ran_internet_dependencies")
+    touch("results/checkpoints/setup_dependencies")
+  shell:
+    """
+    echo "set all dependencies"
+    """
       
 
 ## setup_combfold:              Compile the COMBFOLD programme. 
@@ -123,6 +127,7 @@ rule setup_combfold:
     touch("results/checkpoints/setup_combfold")
   shell:
     """
+    pixi run make update_submodules
     echo "setting up combfold"
     cd workflow/scripts/dependencies/CombFold
     echo "We are in CombFold:"
@@ -163,14 +168,14 @@ rule produce_fasta:
 rule colabfold_batch:
   input:
     # checkpoint="results/checkpoints/setup_cuda",
-    fasta="results/data/{protein_complex}/subunits/fold-msa"
+    msa="results/data/{protein_complex}/subunits/fold-msa"
   output:
     directory("results/data/{protein_complex}/subunits/pdb/")
   log:
     "logs/{protein_complex}/colabfold.log"
   shell:
     """
-    pixi run colabfold_batch {input.fasta} {output} \
+    pixi run colabfold_batch {input.msa} {output} \
         --num-models 1 > {log} 2>&1
     """
 
