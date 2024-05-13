@@ -26,4 +26,5 @@ immutabledict = ">=4.2.0,<4.3"
 [pypi-dependencies]
 jax = { version = "*", extras = ["cuda12-pip"] }
 
-
+[system-requirements]
+linux="4.18"

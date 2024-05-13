@@ -108,9 +108,14 @@ rule preprocess:
     """
 
 rule run_internet_rules:
-    """This rule completes all tasks that need internet.
-    """
-    input:
+  """This rule completes all tasks that need internet.
+  """
+  input:
+    "results/checkpoints/setup_cuda"
+    "results/checkpoints/setup_combfold"
+    'results/checkpoints/setup_msa_complete'
+  output:
+    touch("results/setup/ran_internet_dependencies")
       
 
 ## setup_combfold:              Compile the COMBFOLD programme. 
@@ -154,6 +159,8 @@ rule produce_fasta:
       --max-af-size 1800
     """
 
+# rule colabfold_msa
+
 rule colabfold_batch:
   input:
     # checkpoint="results/checkpoints/setup_cuda",
@@ -168,6 +175,19 @@ rule colabfold_batch:
         --num-models 1 > {log} 2>&1
     """
 
+rule colabfold_batch_msa:
+  input:
+    fasta="results/data/{protein_complex}/subunits/fasta"
+  output:
+    directory("results/data/{protein_complex}/subunits/fold-msa/")
+  log:
+    "logs/{protein_complex}/colabfold-msa.log"
+  shell:
+    """
+    pixi run colabfold_batch --msa-only {input.fasta} {output} \
+        --num-models 1 > {log} 2>&1
+    """
+    
 
 
 
