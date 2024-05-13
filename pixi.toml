@@ -23,6 +23,7 @@ conda = ">=24.4.0,<24.5"
 pip = ">=24.0,<25"
 immutabledict = ">=4.2.0,<4.3"
 tree = ">=2.1.1,<2.2"
+graphviz = ">=9.0.0,<9.1"
 
 [pypi-dependencies]
 jax = { version = "*", extras = ["cuda12-pip"] }
