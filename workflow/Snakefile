@@ -107,6 +107,18 @@ rule preprocess:
     cp {input} {output}
     """
 
+rule run_internet_rules:
+  """This rule completes all tasks that need internet.
+  """
+  input:
+    "results/checkpoints/setup_cuda"
+    "results/checkpoints/setup_combfold"
+    'results/checkpoints/setup_msa_complete'
+  output:
+    touch("results/setup/ran_internet_dependencies")
+      
+
+## setup_combfold:              Compile the COMBFOLD programme. 
 rule setup_combfold:
   output:
     touch("results/checkpoints/setup_combfold")
@@ -147,10 +159,12 @@ rule produce_fasta:
       --max-af-size 1800
     """
 
+# rule colabfold_msa
+
 rule colabfold_batch:
   input:
     # checkpoint="results/checkpoints/setup_cuda",
-    fasta="results/data/{protein_complex}/subunits/fasta"
+    fasta="results/data/{protein_complex}/subunits/fold-msa"
   output:
     directory("results/data/{protein_complex}/subunits/pdb/")
   log:
@@ -161,12 +175,31 @@ rule colabfold_batch:
         --num-models 1 > {log} 2>&1
     """
 
+rule colabfold_batch_msa:
+  input:
+    fasta="results/data/{protein_complex}/subunits/fasta"
+  output:
+    directory("results/data/{protein_complex}/subunits/fold-msa/")
+  log:
+    "logs/{protein_complex}/colabfold-msa.log"
+  shell:
+    """
+    pixi run colabfold_batch --msa-only {input.fasta} {output} \
+        --num-models 1 > {log} 2>&1
+    """
+    
 
 
 
 ## combfold:                  Calculate the complexes from the JSON
 ##                              file.
 rule combfold:
+  """Run the combfold programme
+
+  Note --- If a high scoring assembly cannot be found, the programme will
+            exit with a nonzero exit code. That is why the usage of 
+            `set +e` is needed.
+  """
   input:
     "results/checkpoints/setup_combfold",
     json="results/data/{protein_complex}/{protein_complex}.json",
@@ -175,6 +208,7 @@ rule combfold:
     directory("results/data/{protein_complex}/subunits/combfold")
   shell:
     """
+    set +e
     cd workflow/scripts/dependencies/CombFold
     unset PIXI_PROJECT_MANIFEST
     pixi run python3 scripts/run_on_pdbs.py ../../../../{input.json}  \
