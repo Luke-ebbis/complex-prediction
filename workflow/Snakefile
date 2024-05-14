@@ -167,16 +167,15 @@ rule produce_fasta:
 
 rule colabfold_batch:
   input:
-    # checkpoint="results/checkpoints/setup_cuda",
+    checkpoint="results/checkpoints/setup_cuda",
     msa="results/data/{protein_complex}/subunits/fold-msa"
   output:
     directory("results/data/{protein_complex}/subunits/pdb/")
-  log:
-    "logs/{protein_complex}/colabfold.log"
   shell:
     """
+    echo "Starting colabfold, please see {output}/log.txt for the log"
     pixi run colabfold_batch {input.msa} {output} \
-        --num-models 1 > {log} 2>&1
+        --num-models 1 
     """
 
 rule colabfold_batch_msa:
@@ -184,15 +183,12 @@ rule colabfold_batch_msa:
     fasta="results/data/{protein_complex}/subunits/fasta"
   output:
     directory("results/data/{protein_complex}/subunits/fold-msa/")
-  log:
-    "logs/{protein_complex}/colabfold-msa.log"
   shell:
     """
+    echo "Starting colabfold, please see {output}/log.txt for the log"
     pixi run colabfold_batch --msa-only {input.fasta} {output} \
-        --num-models 1 > {log} 2>&1
+        --num-models 1
     """
-    
-
 
 
 ## combfold:                  Calculate the complexes from the JSON
