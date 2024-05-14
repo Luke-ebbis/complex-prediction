@@ -137,7 +137,7 @@ rule combfold:
     json="results/data/{protein_complex}/{protein_complex}.json",
     pdb="results/data/{protein_complex}/subunits/pdb"
   output:
-    directory("results/data/{protein_complex}/subunits/combfold")
+    directory("results/data/{protein_complex}/combfold")
   shell:
     """
     set +e
