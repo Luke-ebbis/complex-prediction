@@ -5,7 +5,7 @@
 import os
 import json
 import itertools
-
+configfile: "config/config.yml"
 
 # What json files are there to process in our pipeline?
 INPUTS=[name.replace('.json', '') for name in os.listdir("data/") if name.endswith('json')]
@@ -97,13 +97,15 @@ rule colabfold_batch:
   input:
     checkpoint="results/checkpoints/setup_cuda",
     msa="results/data/{protein_complex}/subunits/fold-msa"
+  params:
+    number_of_models=config['colabfold']['number_of_models']
   output:
     directory("results/data/{protein_complex}/subunits/pdb/")
   shell:
     """
     echo "Starting colabfold, please see {output}/log.txt for the log"
     pixi run colabfold_batch {input.msa} {output} \
-        --num-models 1 
+        --num-models {params.number_of_models}
     """
 
 rule colabfold_batch_msa:
@@ -111,11 +113,13 @@ rule colabfold_batch_msa:
     fasta="results/data/{protein_complex}/subunits/fasta"
   output:
     directory("results/data/{protein_complex}/subunits/fold-msa/")
+  params:
+    number_of_models=config['colabfold']['number_of_models']
   shell:
     """
     echo "Starting colabfold, please see {output}/log.txt for the log"
     pixi run colabfold_batch --msa-only {input.fasta} {output} \
-        --num-models 1
+        --num-models {params.number_of_models}
     """
 
 
