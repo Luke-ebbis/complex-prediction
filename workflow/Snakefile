@@ -106,12 +106,12 @@ rule produce_fasta_groups:
       --max-af-size 1800
     """
 
-rule collate_fastas:
+rule collate_structures:
   input:
-    "results/data/{protein_complex}/subunits/fasta-pairs",
-    "results/data/{protein_complex}/subunits/fasta-groups"
+    "results/data/{protein_complex}/subunits/pdb-pairs",
+    "results/data/{protein_complex}/subunits/pdb-groups"
   output:
-    "results/data/{protein_complex}/subunits/fasta"
+    "results/data/{protein_complex}/subunits/pdb"
   shell:
     """
     mkdir {output} -p
@@ -121,14 +121,14 @@ rule collate_fastas:
 
 # rule colabfold_msa
 
-rule colabfold_batch:
+rule colabfold_batch_pairs:
   input:
     checkpoint="results/checkpoints/setup_cuda",
-    msa="results/data/{protein_complex}/subunits/fold-msa"
+    msa="results/data/{protein_complex}/subunits/fold-msa-pairs"
   params:
     number_of_models=config['colabfold']['number_of_models']
   output:
-    directory("results/data/{protein_complex}/subunits/pdb/")
+    directory("results/data/{protein_complex}/subunits/pdb-pairs/")
   shell:
     """
     echo "Starting colabfold, please see {output}/log.txt for the log"
@@ -136,11 +136,11 @@ rule colabfold_batch:
         --num-models {params.number_of_models}
     """
 
-rule colabfold_batch_msa:
+rule colabfold_batch_msa_pairs:
   input:
-    fasta="results/data/{protein_complex}/subunits/fasta"
+    fasta="results/data/{protein_complex}/subunits/fasta-pairs"
   output:
-    directory("results/data/{protein_complex}/subunits/fold-msa/")
+    directory("results/data/{protein_complex}/subunits/fold-msa-pairs/")
   params:
     number_of_models=config['colabfold']['number_of_models']
   shell:
@@ -150,6 +150,34 @@ rule colabfold_batch_msa:
         --num-models {params.number_of_models}
     """
 
+rule colabfold_batch_groups:
+  input:
+    checkpoint="results/checkpoints/setup_cuda",
+    msa="results/data/{protein_complex}/subunits/fold-msa-groups"
+  params:
+    number_of_models=config['colabfold']['number_of_models']
+  output:
+    directory("results/data/{protein_complex}/subunits/pdb-groups/")
+  shell:
+    """
+    echo "Starting colabfold, please see {output}/log.txt for the log"
+    pixi run colabfold_batch {input.msa} {output} \
+        --num-models {params.number_of_models}
+    """
+
+rule colabfold_batch_msa_groups:
+  input:
+    fasta="results/data/{protein_complex}/subunits/fasta-groups"
+  output:
+    directory("results/data/{protein_complex}/subunits/fold-msa-groups/")
+  params:
+    number_of_models=config['colabfold']['number_of_models']
+  shell:
+    """
+    echo "Starting colabfold, please see {output}/log.txt for the log"
+    pixi run colabfold_batch --msa-only {input.fasta} {output} \
+        --num-models {params.number_of_models}
+    """
 
 ## combfold:                  Calculate the complexes from the JSON
 ##                              file.
