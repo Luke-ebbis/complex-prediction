@@ -78,7 +78,8 @@ rule produce_fasta_pairs:
   """Make the fasta for larger subunit pairs
   """
   input:
-    "results/data/{protein_complex}/{protein_complex}.json"
+    "results/data/{protein_complex}/{protein_complex}.json",
+    "results/checkpoints/setup_combfold"
   output:
     directory("results/data/{protein_complex}/subunits/fasta-pairs/")
   shell:
@@ -87,21 +88,22 @@ rule produce_fasta_pairs:
     # directory=${{files%/*}}
     cd workflow/scripts/dependencies/CombFold
     unset PIXI_PROJECT_MANIFEST
-    pixi run python3 scripts/prepare_fastas.py ../../../../{input} \
+    pixi run python3 scripts/prepare_fastas.py ../../../../{input[0]} \
       --stage pairs --output-fasta-folder ../../../../{output[0]} \
       --max-af-size 1800
     """
 
 rule produce_fasta_groups:
   input:
-    "results/data/{protein_complex}/{protein_complex}.json"
+    "results/data/{protein_complex}/{protein_complex}.json",
+    "results/checkpoints/setup_combfold"
   output:
     directory("results/data/{protein_complex}/subunits/fasta-groups/")
   shell:
     """
     cd workflow/scripts/dependencies/CombFold
     unset PIXI_PROJECT_MANIFEST
-    pixi run python3 scripts/prepare_fastas.py ../../../../{input} \
+    pixi run python3 scripts/prepare_fastas.py ../../../../{input[0]} \
       --stage groups --output-fasta-folder ../../../../{output[0]} \
       --max-af-size 1800
     """
