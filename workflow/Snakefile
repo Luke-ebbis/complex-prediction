@@ -74,11 +74,13 @@ rule setup_cuda:
     "scripts/dependencies/setup-cuda.sh"
 
 ## produce_fasta:             Convert the json's to fasta inputs.
-rule produce_fasta:
+rule produce_fasta_pairs:
+  """Make the fasta for larger subunit pairs
+  """
   input:
     "results/data/{protein_complex}/{protein_complex}.json"
   output:
-    directory("results/data/{protein_complex}/subunits/fasta/")
+    directory("results/data/{protein_complex}/subunits/fasta-pairs/")
   shell:
     """
     # files={{output.files}}
@@ -88,6 +90,33 @@ rule produce_fasta:
     pixi run python3 scripts/prepare_fastas.py ../../../../{input} \
       --stage pairs --output-fasta-folder ../../../../{output[0]} \
       --max-af-size 1800
+    """
+
+rule produce_fasta_groups:
+  input:
+    "results/data/{protein_complex}/{protein_complex}.json"
+  output:
+    directory("results/data/{protein_complex}/subunits/fasta-groups/")
+  shell:
+    """
+    cd workflow/scripts/dependencies/CombFold
+    unset PIXI_PROJECT_MANIFEST
+    pixi run python3 scripts/prepare_fastas.py ../../../../{input} \
+      --stage groups --output-fasta-folder ../../../../{output[0]} \
+      --max-af-size 1800
+    """
+
+rule collate_fastas:
+  input:
+    "results/data/{protein_complex}/subunits/fasta-pairs",
+    "results/data/{protein_complex}/subunits/fasta-groups"
+  output:
+    "results/data/{protein_complex}/subunits/fasta"
+  shell:
+    """
+    mkdir {output} -p
+    cp {input[0]} {output}
+    cp {input[1]} {output}
     """
 
 # rule colabfold_msa
