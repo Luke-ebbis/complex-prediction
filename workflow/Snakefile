@@ -119,8 +119,8 @@ rule collate_structures:
   shell:
     """
     mkdir {output} -p
-    cp {input[0]} {output}
-    cp {input[1]} {output}
+    cp {input[0]}.pdb {output}
+    cp {input[1]}.pdb {output}
     """
 
 # rule colabfold_msa
