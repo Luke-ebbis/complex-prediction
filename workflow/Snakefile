@@ -204,6 +204,7 @@ rule combfold:
     echo "made the following files in output"
     mkdir ../../../../{output} -p
     mv output-{wildcards.protein_complex}/* ../../../../{output}
+    rm output-{wildcards.protein_complex} -r
     """
 
 ## help:                      Show the help.
