@@ -115,12 +115,12 @@ rule collate_structures:
     "results/data/{protein_complex}/subunits/pdb-pairs",
     "results/data/{protein_complex}/subunits/pdb-groups"
   output:
-    "results/data/{protein_complex}/subunits/pdb"
+    directory("results/data/{protein_complex}/subunits/pdb")
   shell:
     """
     mkdir {output} -p
-    cp {input[0]}.pdb {output}
-    cp {input[1]}.pdb {output}
+    cp {input[0]}/*.pdb {output}
+    cp {input[1]}/*.pdb {output}
     """
 
 # rule colabfold_msa
