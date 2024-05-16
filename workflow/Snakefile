@@ -10,6 +10,9 @@ configfile: "config/config.yml"
 # What json files are there to process in our pipeline?
 INPUTS=[name.replace('.json', '') for name in os.listdir("data/") if name.endswith('json')]
 
+scattergather:
+  split=3
+
 rule all:
   input:
     # The to be processed input files
