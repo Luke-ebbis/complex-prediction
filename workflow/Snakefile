@@ -205,7 +205,6 @@ rule combfold:
     unset PIXI_PROJECT_MANIFEST
     pixi run python3 scripts/run_on_pdbs.py ../../../../{input.json}  \
       ../../../../{input.pdb} output-{wildcards.protein_complex}
-    echo "made the following files in output"
     mkdir ../../../../{output} -p
     mv output-{wildcards.protein_complex}/* ../../../../{output}
     rm output-{wildcards.protein_complex} -r
