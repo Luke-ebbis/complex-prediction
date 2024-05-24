@@ -26,6 +26,15 @@ this is met, analysis can begin!
 pixi run make
 ```
 
+Usage in a HPC context is done with the
+
+```
+pixi run jobscript
+```
+
+command, this will launch a 24 hour long job with 18 cores with 12800 mb of GPU
+memory.
+
 ## Steps in the pipeline
 
 The input data in the form of combfold formatted JSON files from `data` are
