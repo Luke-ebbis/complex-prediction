@@ -1,3 +1,3 @@
 #!/bin/bash
 
-pixi run snakemake --cores --use-conda 
+pixi run snakemake --cores all --use-conda 
