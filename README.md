@@ -37,6 +37,8 @@ memory. Then once the job is submitted and working, the `err` log will contain
 logs from the snakemake output (such as startup messages etc), and the `out`
 log will contain standard output, written by programmes such as `colabfold`.
 
+On raven, the test dataset took 3 hours to complete.
+
 ## Steps in the pipeline
 
 The input data in the form of combfold formatted JSON files from `data` are
