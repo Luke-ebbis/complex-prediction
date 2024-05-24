@@ -13,4 +13,4 @@
 #SBATCH --mem=12800
 #SBATCH --time=24:00:00  # Specify the runtime (24 hours in this case)
 #
-srun slurmer.sh
+srun workflow/scripts/slurmer.sh
