@@ -15,6 +15,7 @@ help  = "snakemake help -c 1 --quiet all"
 make = "snakemake --use-conda -c 1"
 test = "snakemake --use-conda -c 1 -pn"
 update_dag = "snakemake --quiet all -c 1 'results/method.png' && mv results/method.png resources; mv resources/method.png resources/pipeline.png"
+jobscript = "mkdir logs/slurm -p; sbatch workflow/scripts/jobscript.sh"
 
 
 [dependencies]

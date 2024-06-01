@@ -74,32 +74,65 @@ rule setup_cuda:
     "scripts/dependencies/setup-cuda.sh"
 
 ## produce_fasta:             Convert the json's to fasta inputs.
-rule produce_fasta:
+rule produce_fasta_pairs:
+  """Make the fasta for larger subunit pairs
+  """
   input:
-    "results/data/{protein_complex}/{protein_complex}.json"
+    "results/data/{protein_complex}/{protein_complex}.json",
+    "results/checkpoints/setup_combfold"
   output:
-    directory("results/data/{protein_complex}/subunits/fasta/")
+    directory("results/data/{protein_complex}/subunits/fasta-pairs/")
   shell:
     """
     # files={{output.files}}
     # directory=${{files%/*}}
     cd workflow/scripts/dependencies/CombFold
     unset PIXI_PROJECT_MANIFEST
-    pixi run python3 scripts/prepare_fastas.py ../../../../{input} \
+    pixi run python3 scripts/prepare_fastas.py ../../../../{input[0]} \
       --stage pairs --output-fasta-folder ../../../../{output[0]} \
       --max-af-size 1800
     """
 
+rule produce_fasta_groups:
+  input:
+    "results/data/{protein_complex}/{protein_complex}.json",
+    "results/data/{protein_complex}/subunits/pdb-pairs",
+    "results/checkpoints/setup_combfold"
+  output:
+    directory("results/data/{protein_complex}/subunits/fasta-groups/")
+  shell:
+    """
+    cd workflow/scripts/dependencies/CombFold
+    unset PIXI_PROJECT_MANIFEST
+    pixi run python3 scripts/prepare_fastas.py ../../../../{input[0]} \
+      --stage groups --output-fasta-folder ../../../../{output[0]} \
+      --max-af-size 1800 \
+      --input-pairs-results ../../../../{input[1]}
+    """
+
+rule collate_structures:
+  input:
+    "results/data/{protein_complex}/subunits/pdb-pairs",
+    "results/data/{protein_complex}/subunits/pdb-groups"
+  output:
+    directory("results/data/{protein_complex}/subunits/pdb")
+  shell:
+    """
+    mkdir {output} -p
+    cp {input[0]}/*.pdb {output}
+    cp {input[1]}/*.pdb {output}
+    """
+
 # rule colabfold_msa
 
-rule colabfold_batch:
+rule colabfold_batch_pairs:
   input:
     checkpoint="results/checkpoints/setup_cuda",
-    msa="results/data/{protein_complex}/subunits/fold-msa"
+    msa="results/data/{protein_complex}/subunits/fold-msa-pairs"
   params:
     number_of_models=config['colabfold']['number_of_models']
   output:
-    directory("results/data/{protein_complex}/subunits/pdb/")
+    directory("results/data/{protein_complex}/subunits/pdb-pairs/")
   shell:
     """
     echo "Starting colabfold, please see {output}/log.txt for the log"
@@ -107,11 +140,11 @@ rule colabfold_batch:
         --num-models {params.number_of_models}
     """
 
-rule colabfold_batch_msa:
+rule colabfold_batch_msa_pairs:
   input:
-    fasta="results/data/{protein_complex}/subunits/fasta"
+    fasta="results/data/{protein_complex}/subunits/fasta-pairs"
   output:
-    directory("results/data/{protein_complex}/subunits/fold-msa/")
+    directory("results/data/{protein_complex}/subunits/fold-msa-pairs/")
   params:
     number_of_models=config['colabfold']['number_of_models']
   shell:
@@ -121,6 +154,34 @@ rule colabfold_batch_msa:
         --num-models {params.number_of_models}
     """
 
+rule colabfold_batch_groups:
+  input:
+    checkpoint="results/checkpoints/setup_cuda",
+    msa="results/data/{protein_complex}/subunits/fold-msa-groups"
+  params:
+    number_of_models=config['colabfold']['number_of_models']
+  output:
+    directory("results/data/{protein_complex}/subunits/pdb-groups/")
+  shell:
+    """
+    echo "Starting colabfold, please see {output}/log.txt for the log"
+    pixi run colabfold_batch {input.msa} {output} \
+        --num-models {params.number_of_models}
+    """
+
+rule colabfold_batch_msa_groups:
+  input:
+    fasta="results/data/{protein_complex}/subunits/fasta-groups"
+  output:
+    directory("results/data/{protein_complex}/subunits/fold-msa-groups/")
+  params:
+    number_of_models=config['colabfold']['number_of_models']
+  shell:
+    """
+    echo "Starting colabfold, please see {output}/log.txt for the log"
+    pixi run colabfold_batch --msa-only {input.fasta} {output} \
+        --num-models {params.number_of_models}
+    """
 
 ## combfold:                  Calculate the complexes from the JSON
 ##                              file.
@@ -144,9 +205,9 @@ rule combfold:
     unset PIXI_PROJECT_MANIFEST
     pixi run python3 scripts/run_on_pdbs.py ../../../../{input.json}  \
       ../../../../{input.pdb} output-{wildcards.protein_complex}
-    echo "made the following files in output"
     mkdir ../../../../{output} -p
     mv output-{wildcards.protein_complex}/* ../../../../{output}
+    rm output-{wildcards.protein_complex} -r
     """
 
 ## help:                      Show the help.
