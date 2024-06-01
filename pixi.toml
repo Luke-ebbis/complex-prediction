@@ -16,7 +16,7 @@ make = "snakemake --use-conda -c 1"
 test = "snakemake --use-conda -c 1 -pn"
 update_dag = "snakemake --quiet all -c 1 'results/method.png' && mv results/method.png resources; mv resources/method.png resources/pipeline.png"
 jobscript = "mkdir logs/slurm -p; sbatch workflow/scripts/jobscript.sh"
-ascii_graph = "pixi run make build_ascii_graph"
+ascii_graph = "pixi run make results/method.ascii; mv results/method.ascii resources/pipeline.ascii; cat resources/pipeline.ascii"
 
 
 [dependencies]
