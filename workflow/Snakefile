@@ -177,13 +177,14 @@ rule gather_pdb_pairs:
   input:
     get_pdb_files_pairs
   output:
-    directory("results/data/{protein_complex}/subunits/processed-pairs/")
+    directory("results/data/{protein_complex}/subunits/pair-pdb/")
   shell:
     """
     mkdir {output} -p
     echo "Copying PDB files to: {output}"
-    for pdb_file in {input}; do
-        cp "$pdb_file/*pdb" {output}
+    for pdb_dir in {input}; do
+      echo "Processing directory: $pdb_dir"
+      cp "$pdb_dir"/*.pdb {output}
     done
     """
 
@@ -212,24 +213,26 @@ rule gather_pdb_groups:
   input:
     get_pdb_files_groups
   output:
-    directory("results/data/{protein_complex}/subunits/processed-groups/")
+    directory("results/data/{protein_complex}/subunits/group-pdb/")
   shell:
     """
     mkdir {output} -p
     echo "Copying PDB files to: {output}"
     for pdb_file in {input}; do
+        echo {input}
         cp "$pdb_file/*pdb" {output}
     done
     """
 
 rule gather_pdb:
   input:
-    pairs="results/data/{protein_complex}/subunits/processed-pairs",
-    groups="results/data/{protein_complex}/subunits/processed-groups"
+    pairs="results/data/{protein_complex}/subunits/pair-pdb",
+    groups="results/data/{protein_complex}/subunits/group-pdb"
   output: 
     directory("results/data/{protein_complex}/subunits/pdb")
   shell:
     """
+    mkdir {output} -p
     cp {input.pairs}/*pdb {output}
     cp {input.groups}/*pdb {output}
     """
