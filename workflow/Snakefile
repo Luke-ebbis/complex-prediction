@@ -57,6 +57,7 @@ rule setup_combfold:
     touch("results/checkpoints/setup_combfold")
   shell:
     """
+    pixi run download_submodules
     pixi run update_submodules
     echo "setting up combfold"
     cd workflow/scripts/dependencies/CombFold
@@ -64,8 +65,6 @@ rule setup_combfold:
     ls
     unset PIXI_PROJECT_MANIFEST
     pixi run make
-    echo "compilation seems to have been a success!"
-    ./CombinatorialAssembler/AF2trans.out --help
     """
 
 
