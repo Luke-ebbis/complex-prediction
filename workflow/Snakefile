@@ -103,45 +103,69 @@ def get_fasta_files(wildcards):
     return fasta_files
 
 
-def get_pdb_files(wildcards):
+def get_pdb_files_pairs(wildcards):
     checkpoint_output = checkpoints.produce_fasta_pairs.get(**wildcards).output[0]
     fasta_files = [os.path.join(checkpoint_output, f) for f in
       os.listdir(checkpoint_output) if f.endswith(".fasta")]
     pdb_file = [(file
-      .replace("fasta-pairs", "processed")
+      .replace("fasta-pairs", "processed-pairs")
       .replace(".fasta", "")) 
       for file in fasta_files]
+    print(f"pairs {pdb_file}")
     return pdb_file
     
-rule process_fasta:
+def get_pdb_files_groups(wildcards):
+    checkpoint_output = checkpoints.produce_fasta_groups.get(**wildcards).output[0]
+    fasta_files = [os.path.join(checkpoint_output, f) for f in
+      os.listdir(checkpoint_output) if f.endswith(".fasta")]
+    pdb_file = [(file
+      .replace("fasta-groups", "processed-pairs")
+      .replace(".fasta", "")) 
+      for file in fasta_files]
+    print(f"groups {pdb_file}")
+    return pdb_file
+
+rule process_fasta_pairs:
   input:
     fasta="results/data/{protein_complex}/subunits/fasta-pairs/{fasta_file}.fasta"
   params:
     number_of_models=config['colabfold']['number_of_models']
   output:
-    directory("results/data/{protein_complex}/subunits/processed/{fasta_file}")
+    directory("results/data/{protein_complex}/subunits/processed-pairs/{fasta_file}")
   shell:
     """
     echo "Starting colabfold, please see {output}/log.txt for the log"
     colabfold_batch {input.fasta} {output} --num-models {params.number_of_models}
     """
 
-rule gather_pdb:
+rule process_fasta_groups:
   input:
-    get_pdb_files
+    fasta="results/data/{protein_complex}/subunits/fasta-pairs/{fasta_file}.fasta"
+  params:
+    number_of_models=config['colabfold']['number_of_models']
   output:
-    directory("results/data/{protein_complex}/subunits/processed/")
+    directory("results/data/{protein_complex}/subunits/processed-groups/{fasta_file}")
+  shell:
+    """
+    echo "Starting colabfold, please see {output}/log.txt for the log"
+    colabfold_batch {input.fasta} {output} --num-models {params.number_of_models}
+    """
+
+rule gather_pdb_pairs:
+  input:
+    get_pdb_files_pairs
+  output:
+    directory("results/data/{protein_complex}/subunits/processed-pairs/")
   shell:
     """
     mkdir {output}
     cp {input} {output}
     """
 
-
-rule produce_fasta_groups:
+checkpoint produce_fasta_groups:
   input:
     "results/data/{protein_complex}/{protein_complex}.json",
-    "results/data/{protein_complex}/subunits/pdb-pairs",
+    "results/data/{protein_complex}/subunits/processed-pairs",
     "results/checkpoints/setup_combfold"
   output:
     directory("results/data/{protein_complex}/subunits/fasta-groups/")
@@ -155,18 +179,30 @@ rule produce_fasta_groups:
       --input-pairs-results ../../../../{input[1]}
     """
 
-rule collate_structures:
+rule gather_pdb_groups:
   input:
-    "results/data/{protein_complex}/subunits/pdb-pairs",
-    "results/data/{protein_complex}/subunits/pdb-groups"
+    get_pdb_files_groups
   output:
+    directory("results/data/{protein_complex}/subunits/processed-groups/")
+  shell:
+    """
+    mkdir {output}
+    cp {input} {output}
+    """
+
+rule gather_pdb:
+  input:
+    get_pdb_files_groups,
+    get_pdb_files_pairs,
+  output: 
     directory("results/data/{protein_complex}/subunits/pdb")
   shell:
     """
-    mkdir {output} -p
-    cp {input[0]}/*.pdb {output}
-    cp {input[1]}/*.pdb {output}
+    cp {get_pdb_files_groups} {output}
+    cp {get_pdb_files_pairs} {output}
     """
+
+
 
 # rule colabfold_msa
 
@@ -281,4 +317,22 @@ rule build_overview:
   shell:
     """
     snakemake -c 1 --forceall --dag | dot -T{wildcards.fileformat} > {output}
+    """
+
+rule install_easy_graph:
+  output:
+    touch("results/checkpoints_install_easy_graph")
+  shell:
+    """
+    cpanm Graph::Easy
+    """
+
+rule build_ascii_graph:
+  input:
+    "results/checkpoints_install_easy_graph"
+  shell:
+    """
+    snakemake -c 1 --forceall --dag > out
+    graph-easy --from=dot --as_ascii out 
+    rm out
     """
