@@ -73,8 +73,10 @@ rule setup_cuda:
   script:
     "scripts/dependencies/setup-cuda.sh"
 
-## produce_fasta:             Convert the json's to fasta inputs.
-rule produce_fasta_pairs:
+## produce_fasta_pair: 
+##    Convert the json's to fasta inputs.
+##
+checkpoint produce_fasta_pairs:
   """Make the fasta for larger subunit pairs
   """
   input:
@@ -92,6 +94,49 @@ rule produce_fasta_pairs:
       --stage pairs --output-fasta-folder ../../../../{output[0]} \
       --max-af-size 1800
     """
+
+# Function to get the list of produced FASTA files -- CHATGPT
+def get_fasta_files(wildcards):
+    checkpoint_output = checkpoints.produce_fasta_pairs.get(**wildcards).output[0]
+    fasta_files = [os.path.join(checkpoint_output, f) for f in
+      os.listdir(checkpoint_output) if f.endswith(".fasta")]
+    return fasta_files
+
+
+def get_pdb_files(wildcards):
+    checkpoint_output = checkpoints.produce_fasta_pairs.get(**wildcards).output[0]
+    fasta_files = [os.path.join(checkpoint_output, f) for f in
+      os.listdir(checkpoint_output) if f.endswith(".fasta")]
+    pdb_file = [(file
+      .replace("fasta-pairs", "processed")
+      .replace(".fasta", "")) 
+      for file in fasta_files]
+    return pdb_file
+    
+rule process_fasta:
+  input:
+    fasta="results/data/{protein_complex}/subunits/fasta-pairs/{fasta_file}.fasta"
+  params:
+    number_of_models=config['colabfold']['number_of_models']
+  output:
+    directory("results/data/{protein_complex}/subunits/processed/{fasta_file}")
+  shell:
+    """
+    echo "Starting colabfold, please see {output}/log.txt for the log"
+    colabfold_batch {input.fasta} {output} --num-models {params.number_of_models}
+    """
+
+rule gather_pdb:
+  input:
+    get_pdb_files
+  output:
+    directory("results/data/{protein_complex}/subunits/processed/")
+  shell:
+    """
+    mkdir {output}
+    cp {input} {output}
+    """
+
 
 rule produce_fasta_groups:
   input:
