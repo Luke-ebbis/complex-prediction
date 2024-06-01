@@ -1,28 +1,37 @@
 ## CombFoldinator
 ##
-## Snakemake pipeline for the Combfold programme.
+## Snakemake pipeline for the Combfold programme. Usage is 
+## pixi run make <rule name>
 ##
+
+# This snakemake uses checkpoints to re-evaluate the DAG after each folding
+# step. This allows the colabfold prediction to run in paralel.
+
 import os
 import json
 import itertools
 configfile: "config/config.yml"
 
 # What json files are there to process in our pipeline?
-INPUTS=[name.replace('.json', '') for name in os.listdir("data/") if name.endswith('json')]
+INPUTS=[name.replace('.json', '') for name in os.listdir("data/") if
+  name.endswith('json')]
 
-scattergather:
-  split=3
-
+## all -- output:
+##    A file with the output of the combfold programme for each of the input
+##    Files in the `data` directory.
 rule all:
   input:
-    # The to be processed input files
     expand("results/data/{protein_complex}/combfold",
         protein_complex=INPUTS)
 
-
+##
 ## Rules
 ## ------
-## preprocess:                Preprocess the input JSON files.
+##
+
+## preprocess:                
+##    Preprocess the input JSON files.
+##
 rule preprocess:
   """When the sequences are too long to predict, cut them
 
@@ -51,7 +60,9 @@ rule run_internet_rules:
     """
       
 
-## setup_combfold:              Compile the COMBFOLD programme. 
+## setup_combfold:              
+##    Compile the COMBFOLD programme. 
+##
 rule setup_combfold:
   output:
     touch("results/checkpoints/setup_combfold")
@@ -68,7 +79,9 @@ rule setup_combfold:
     """
 
 
-## setup_cuda:                Use the cuda hardware for computation.
+## setup_cuda:                
+##    Use `pip` to download cuda support programmes.
+##
 rule setup_cuda:
   output:
     touch("results/checkpoints/setup_cuda")
@@ -88,8 +101,6 @@ checkpoint produce_fasta_pairs:
     directory("results/data/{protein_complex}/subunits/fasta-pairs/")
   shell:
     """
-    # files={{output.files}}
-    # directory=${{files%/*}}
     cd workflow/scripts/dependencies/CombFold
     unset PIXI_PROJECT_MANIFEST
     pixi run python3 scripts/prepare_fastas.py ../../../../{input[0]} \
@@ -105,6 +116,7 @@ def get_fasta_files(wildcards):
     return fasta_files
 
 
+# Function to get the list of produced pdb files -- CHATGPT
 def get_pdb_files_pairs(wildcards):
     checkpoint_output = checkpoints.produce_fasta_pairs.get(**wildcards).output[0]
     fasta_files = [os.path.join(checkpoint_output, f) for f in
@@ -125,7 +137,12 @@ def get_pdb_files_groups(wildcards):
       for file in fasta_files]
     return pdb_file
 
+## process_fasta_pairs:
+##    Calculate the protein structures of the first order pairs using Colabfold.
+##
 rule process_fasta_pairs:
+  conda:
+    "envs/fold.yml"
   input:
     fasta="results/data/{protein_complex}/subunits/fasta-pairs/{fasta_file}.fasta"
   params:
@@ -138,7 +155,12 @@ rule process_fasta_pairs:
     colabfold_batch {input.fasta} {output} --num-models {params.number_of_models}
     """
 
+## process_fasta_groups:
+##    Calculate the protein structures of the higher order pairs using Colabfold.
+##
 rule process_fasta_groups:
+  conda:
+    "envs/fold.yml"
   input:
     fasta="results/data/{protein_complex}/subunits/fasta-pairs/{fasta_file}.fasta"
   params:
@@ -159,9 +181,13 @@ rule gather_pdb_pairs:
   shell:
     """
     mkdir {output}
-    cp {output}*/*.pdb {output}
+    cp {output}/*/*.pdb {output}
     """
 
+## produce_fasta_groups:
+##    Determine which higher order-groups are most usefull to predict models
+##    for.
+##
 checkpoint produce_fasta_groups:
   input:
     "results/data/{protein_complex}/{protein_complex}.json",
@@ -206,6 +232,7 @@ rule gather_pdb:
 ## combfold:                  
 ##    Calculate the protein complexes from the (higher order) pairs
 ##    predicted by the colabfold steps.
+##
 rule combfold:
   """Run the combfold programme
 
@@ -231,13 +258,17 @@ rule combfold:
     rm output-{wildcards.protein_complex} -r
     """
 
-## help:                      Show the help.
+## help:
+##    Show the help.
+##
 rule help:
   input: "workflow/Snakefile"
   shell:
       "sed -n 's/^##//p' {input}"
 
-## version                    Show the version.
+## version:
+##    Show the version.
+##
 rule version:
   shell:
     """
@@ -245,13 +276,19 @@ rule version:
     """
     
 
-## clean:                     Clean all outputs
+## clean:                     
+##    Clean all outputs of the data folder.
+##
 rule clean:
     shell:
         "rm -rf results/data*"
 
-## build_overview:            Print the graph.
+## build_overview:            
+##    Print the graph of the current job.
+##
 rule build_overview:
+  conda:
+    "envs/utils.yml"
   output:
     "results/method.{fileformat}"
   shell:
@@ -260,15 +297,21 @@ rule build_overview:
     """
 
 rule install_easy_graph:
+  conda:
+    "envs/utils.yml"
   output:
-    touch("results/checkpoints_install_easy_graph")
+    touch("results/checkpoints/install_easy_graph")
   shell:
     """
     cpan -i App::cpanminus
     cpanm Graph::Easy
     """
 
+## build_overview_ascii:
+##    Prints the graph in ascii format.
 rule build_ascii_graph:
+  conda:
+    "envs/utils.yml"
   input:
     "results/checkpoints_install_easy_graph"
   output:
