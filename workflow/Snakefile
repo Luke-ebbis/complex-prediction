@@ -180,8 +180,11 @@ rule gather_pdb_pairs:
     directory("results/data/{protein_complex}/subunits/processed-pairs/")
   shell:
     """
-    mkdir {output}
-    cp {output}/*/*.pdb {output}
+    mkdir {output} -p
+    echo "Copying PDB files to: {output}"
+    for pdb_file in {input}; do
+        cp "$pdb_file/*pdb" {output}
+    done
     """
 
 ## produce_fasta_groups:
@@ -212,8 +215,11 @@ rule gather_pdb_groups:
     directory("results/data/{protein_complex}/subunits/processed-groups/")
   shell:
     """
-    mkdir {output}
-    cp {output}/*/*.pdb {output}
+    mkdir {output} -p
+    echo "Copying PDB files to: {output}"
+    for pdb_file in {input}; do
+        cp "$pdb_file/*pdb" {output}
+    done
     """
 
 rule gather_pdb:
