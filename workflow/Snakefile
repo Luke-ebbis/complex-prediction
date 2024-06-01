@@ -213,19 +213,19 @@ rule gather_pdb_groups:
   shell:
     """
     mkdir {output}
-    cp {input} {output}
+    cp {output}/*/*.pdb {output}
     """
 
 rule gather_pdb:
   input:
-    get_pdb_files_groups,
-    get_pdb_files_pairs,
+    pairs="results/data/{protein_complex}/subunits/processed-pairs",
+    groups="results/data/{protein_complex}/subunits/processed-groups"
   output: 
     directory("results/data/{protein_complex}/subunits/pdb")
   shell:
     """
-    cp {get_pdb_files_groups} {output}
-    cp {get_pdb_files_pairs} {output}
+    cp {input.pairs}/*pdb {output}
+    cp {input.groups}/*pdb {output}
     """
 
 
@@ -313,9 +313,9 @@ rule build_ascii_graph:
   conda:
     "envs/utils.yml"
   input:
-    "results/checkpoints_install_easy_graph"
+    "results/checkpoints/install_easy_graph"
   output:
-    "results/method.ascii"
+    "results/method-simple.ascii"
   shell:
     """
     snakemake -c 1 --forceall --dag > out

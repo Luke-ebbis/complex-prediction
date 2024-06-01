@@ -11,12 +11,12 @@ download_submodules = "git submodule init; git submodule update"
 update_submodules = {cmd = "git submodule update --remote --merge", depends_on = ['download_submodules']}
 start = {cmd = "snakemake --use-conda", depends_on = ["update_submodules"]}
 t = "tree results -L 5"
-help  = "snakemake help -c 1 --quiet all"
+help  = "snakemake help -c 1 --quiet all | less"
 make = "snakemake --use-conda -c 1"
 test = "snakemake --use-conda -c 1 -pn"
 update_dag = "snakemake --quiet all -c 1 'results/method.png' && mv results/method.png resources; mv resources/method.png resources/pipeline.png"
 jobscript = "mkdir logs/slurm -p; sbatch workflow/scripts/jobscript.sh"
-ascii_graph = "pixi run make results/method.ascii &&  mv results/method.ascii resources/pipeline.ascii; cat resources/pipeline.ascii"
+ascii_graph = "pixi run make results/method-simple.ascii &&  mv results/method.ascii resources/pipeline.ascii; cat resources/pipeline.ascii"
 
 
 [dependencies]
