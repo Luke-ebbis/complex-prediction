@@ -195,7 +195,7 @@ rule gather_pdb_pairs:
 checkpoint produce_fasta_groups:
   input:
     "results/data/{protein_complex}/{protein_complex}.json",
-    "results/data/{protein_complex}/subunits/processed-pairs",
+    "results/data/{protein_complex}/subunits/pair-pdb",
     "results/checkpoints/setup_combfold"
   output:
     directory("results/data/{protein_complex}/subunits/fasta-groups/")
