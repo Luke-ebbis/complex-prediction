@@ -132,51 +132,16 @@ def get_pdb_files_groups(wildcards):
     fasta_files = [os.path.join(checkpoint_output, f) for f in
       os.listdir(checkpoint_output) if f.endswith(".fasta")]
     pdb_file = [(file
-      .replace("fasta-groups", "processed-pairs")
+      .replace("fasta-groups", "processed-groups")
       .replace(".fasta", "")) 
       for file in fasta_files]
     return pdb_file
 
-## process_fasta_pairs:
-##    Calculate the protein structures of the first order pairs using Colabfold.
-##
-# rule process_fasta_pairs:
-#   conda:
-#     "envs/fold.yml"
-#   input:
-#     fasta="results/data/{protein_complex}/subunits/fasta-pairs/{fasta_file}.fasta"
-#   params:
-#     number_of_models=config['colabfold']['number_of_models']
-#   output:
-#     directory("results/data/{protein_complex}/subunits/processed-pairs/{fasta_file}")
-#   shell:
-#     """
-#     echo "Starting colabfold, please see {output}/log.txt for the log"
-#     colabfold_batch {input.fasta} {output} --num-models {params.number_of_models}
-#     """
 
-## process_fasta_groups:
-##    Calculate the protein structures of the higher order pairs using Colabfold.
+## colabfold:
+##    Calculate the protein structures of the fasta files using Colabfold.
 ##
-# rule process_fasta_groups:
-#   conda:
-#     "envs/fold.yml"
-#   input:
-#     fasta="results/data/{protein_complex}/subunits/fasta-groups/{fasta_file}.fasta"
-#   params:
-#     number_of_models=config['colabfold']['number_of_models']
-#   output:
-#     directory("results/data/{protein_complex}/subunits/processed-groups/{fasta_file}")
-#   shell:
-#     """
-#     echo "Starting colabfold, please see {output}/log.txt for the log"
-#     colabfold_batch {input.fasta} {output} --num-models {params.number_of_models}
-#     """
-
-## process_fasta_groups:
-##    Calculate the protein structures of the higher order pairs using Colabfold.
-##
-rule process_fasta:
+rule colabfold:
   conda:
     "envs/fold.yml"
   input:
@@ -190,6 +155,8 @@ rule process_fasta:
     echo "Starting colabfold, please see {output}/log.txt for the log"
     colabfold_batch {input.fasta} {output} --num-models {params.number_of_models}
     """
+
+
 
 rule gather_pdb_pairs:
   input:
@@ -238,11 +205,11 @@ rule gather_pdb_groups:
     """
     mkdir {output} -p
     echo "Copying PDB files to: {output}"
-    for pdb_file in {input}; do
-        echo {input}
-        echo "In this directory are the following files:"
-        ls $pdb_file -l
-        cp "$pdb_file/*pdb" {output}
+    for pdb_dir in {input}; do
+      echo "Processing directory: $pdb_dir"
+      echo "In this directory are the following files:"
+      ls $pdb_dir -l
+      cp "$pdb_dir"/*.pdb {output}
     done
     """
 
