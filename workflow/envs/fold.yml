@@ -1,0 +1,10 @@
+channels:
+  - conda-forge
+  - schrodinger
+  - bioconda
+  - nvidia
+dependencies:
+  - immutabledict
+  - colabfold
+  - cuda-nvcc
+  - pip

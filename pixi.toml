@@ -11,21 +11,20 @@ download_submodules = "git submodule init; git submodule update"
 update_submodules = {cmd = "git submodule update --remote --merge", depends_on = ['download_submodules']}
 start = {cmd = "snakemake --use-conda", depends_on = ["update_submodules"]}
 t = "tree results -L 5"
-help  = "snakemake help -c 1 --quiet all"
+help  = "snakemake help -c 1 --quiet all | less"
 make = "snakemake --use-conda -c 1"
 test = "snakemake --use-conda -c 1 -pn"
-update_dag = "snakemake --quiet all -c 1 'results/method.png' && mv results/method.png resources; mv resources/method.png resources/pipeline.png"
+update_dag = "pixi run make  'results/method.png' --quiet all && mv results/method.png resources; mv resources/method.png resources/pipeline.png"
 jobscript = "mkdir logs/slurm -p; sbatch workflow/scripts/jobscript.sh"
+ascii_graph = "pixi run make results/method-simple.ascii &&  mv results/method-simple.ascii resources/pipeline.ascii; cat resources/pipeline.ascii"
 
 
 [dependencies]
-colabfold = ">=1.5.5,<1.6"
-snakemake = ">=7.32.4,<7.33"
 conda = ">=24.4.0,<24.5"
+snakemake = ">=7.32.4,<7.33"
 pip = ">=24.0,<25"
-immutabledict = ">=4.2.0,<4.3"
 tree = ">=2.1.1,<2.2"
-graphviz = ">=9.0.0,<9.1"
+mamba = ">=1.5.8,<1.6"
 
 [pypi-dependencies]
 jax = { version = "*", extras = ["cuda12-pip"] }
