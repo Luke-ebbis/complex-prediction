@@ -37,14 +37,17 @@ memory. Then once the job is submitted and working, the `err` log will contain
 logs from the snakemake output (such as startup messages etc), and the `out`
 log will contain standard output, written by programmes such as `colabfold`.
 
-On raven, the test dataset took 3 hours to complete.
 
 ## Steps in the pipeline
 
 The input data in the form of combfold formatted JSON files from `data` are
-copied over to the `results/data` directory. Then the MSA's are fetched from
-the combfold MSA server. These MSA data are then used to predict the protein 3D
-structure of each _pair_ in the input dataset. Then Combfold is ran on the
-structures.
+copied over to the `results/data` directory. First the structures of the pairs
+are calculated using combfold. The best pairs are used to calculate higher order
+structures. Following this, the combfold algorithm is used to calculate the
+structure of the complex of the pairs and higher order pairs.
 
 ![Steps of the pipeline](resources/pipeline.png)
+
+The colabfold step is done in paralel for each (higher order) pair. The outputs
+of colabfold are captured by re-evaluating the job-graph after the the pairings
+have been determined by Combfold.
