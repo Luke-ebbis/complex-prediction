@@ -145,7 +145,8 @@ rule colabfold:
   conda:
     "envs/fold.yml"
   input:
-    fasta="results/data/{protein_complex}/subunits/fasta-{grouping}/{fasta_file}.fasta"
+    fasta="results/data/{protein_complex}/subunits/fasta-{grouping}/{fasta_file}.fasta",
+    cuda="results/checkpoints/setup_cuda"
   params:
     number_of_models=config['colabfold']['number_of_models']
   output:
@@ -155,8 +156,6 @@ rule colabfold:
     echo "Starting colabfold, please see {output}/log.txt for the log"
     colabfold_batch {input.fasta} {output} --num-models {params.number_of_models}
     """
-
-
 
 rule gather_pdb_pairs:
   input:
