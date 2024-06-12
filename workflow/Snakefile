@@ -29,6 +29,8 @@ rule all:
 ## ------
 ##
 
+localrules: preprocess, run_internet_rules, setup_cuda, setup_combfold, produce_fasta_pairs, gather_pdb_pairs, produce_fasta_groups, gather_pdb_groups
+
 ## preprocess:                
 ##    Preprocess the input JSON files.
 ##
@@ -68,8 +70,8 @@ rule setup_combfold:
     touch("results/checkpoints/setup_combfold")
   shell:
     """
-    pixi run download_submodules
-    pixi run update_submodules
+    git submodule init; git submodule update
+    git submodule update --remote --merge
     echo "setting up combfold"
     cd workflow/scripts/dependencies/CombFold
     echo "We are in CombFold:"
@@ -147,6 +149,10 @@ rule colabfold:
   input:
     fasta="results/data/{protein_complex}/subunits/fasta-{grouping}/{fasta_file}.fasta",
     cuda="results/checkpoints/setup_cuda"
+  resources:
+    mem_mb=12000,
+    gpu=1
+  threads: 10
   params:
     number_of_models=config['colabfold']['number_of_models']
   output:
@@ -246,6 +252,9 @@ rule combfold:
     pdb="results/data/{protein_complex}/subunits/pdb"
   output:
     directory("results/data/{protein_complex}/combfold")
+  resources:
+    mem_mb=12000
+  threads: 15
   shell:
     """
     set +e

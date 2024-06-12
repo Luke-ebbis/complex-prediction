@@ -29,14 +29,11 @@ pixi run make
 Usage in a HPC context is done with the
 
 ```
-pixi run jobscript
+pixi run slurm
 ```
 
-command, this will launch a 24 hour long job with 18 cores with 12800 mb of GPU
-memory. Then once the job is submitted and working, the `err` log will contain
-logs from the snakemake output (such as startup messages etc), and the `out`
-log will contain standard output, written by programmes such as `colabfold`.
-
+command, this will launch the Snakemake pipeline with the slurm executor. This
+means each job is launched as a seperate job.
 
 ## Steps in the pipeline
 
