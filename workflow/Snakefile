@@ -159,7 +159,7 @@ rule colabfold:
     cpus_per_task=10,
     mem="30G",
     slurm_partition='gpu1',
-    runtime='1440',
+    runtime='24h',
     slurm_account="mpmp_gpu",
   # threads: 10
   params:
