@@ -33,7 +33,8 @@ pixi run slurm
 ```
 
 command, this will launch the Snakemake pipeline with the slurm executor. This
-means each job is launched as a seperate job.
+means each job is launched as a seperate job with one GPU allocator. This
+behaviour is supported on the raven HPC system.
 
 ## Steps in the pipeline
 
