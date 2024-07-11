@@ -17,7 +17,7 @@ set-resources:
     constraint: "gpu"
     cpus_per_task: 10
     slurm_partition: 'gpu1'
-    runtime: '1440'
+    runtime: 40
     slurm_account: "mpmp_gpu"
   combfold:
     runtime: 1440 # 24 hour
