@@ -20,6 +20,6 @@ set-resources:
     runtime: 40
     slurm_account: "mpmp_gpu"
   combfold:
-    runtime: 1440 # 24 hour
-    mem_mb_per_cpu: 12000
-    cpus_per_task: 15
+    runtime: 200 # 24 hour
+    cpus_per_task: 45
+    mem_per_cpu: 1800
