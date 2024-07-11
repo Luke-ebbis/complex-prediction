@@ -1,15 +1,25 @@
 executor: slurm
 latency-wait: 60
-jobname: "{rule}.{jobid}" 
+jobname: "complex-prediction-{rule}.{jobid}" 
 jobs: 100
 
 default-resources:
   - mem_mb=2000
   - runtime='1440'
-  - tasks=2
-  - mpi="sbatch"
-  - slurm_partition="gpu1"
   - disk_mb=5000
-# https://www.embl.org/groups/bioinformatics-rome/blog/2022/04/snakemake-profile-4-defining-resources-and-threads/
-# https://snakemake.github.io/snakemake-plugin-catalog/plugins/executor/slurm.html
-# cluster: "sbatch --output=\"jobs/{rule}/slurm_%x_%j.out\" --error=\"jobs/{rule}/slurm_%x_%j.log\""
+  - constraint="cpu"
+  - slurm_partition='cpu1'
+  - slurm_account="mpmp_cpu"
+set-resources:
+  colabfold:
+    mem_mb: 32000
+    slurm_extra:  "'--gres=gpu:a100:1'"
+    constraint: "gpu"
+    cpus_per_task: 10
+    slurm_partition: 'gpu1'
+    runtime: '1440'
+    slurm_account: "mpmp_gpu"
+  combfold:
+    runtime: 1440 # 24 hour
+    mem_mb_per_cpu: 12000
+    cpus_per_task: 15

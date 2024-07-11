@@ -29,7 +29,15 @@ rule all:
 ## ------
 ##
 
-localrules: preprocess, run_internet_rules, setup_cuda, setup_combfold, produce_fasta_pairs, gather_pdb_pairs, produce_fasta_groups, gather_pdb_groups
+localrules: 
+  preprocess,
+  run_internet_rules, 
+  setup_cuda, 
+  setup_combfold, 
+  produce_fasta_pairs, 
+  gather_pdb_pairs, 
+  produce_fasta_groups, 
+  gather_pdb_groups
 
 ## preprocess:                
 ##    Preprocess the input JSON files.
@@ -151,17 +159,6 @@ rule colabfold:
   input:
     fasta="results/data/{protein_complex}/subunits/fasta-{grouping}/{fasta_file}.fasta",
     cuda="results/checkpoints/setup_cuda"
-  resources:
-    mem_mb=32000,
-    slurm_extra= "'--gres=gpu:a100:1'",
-    constraint="gpu",
-    tasks="1",
-    cpus_per_task=10,
-    mem="30G",
-    slurm_partition='gpu1',
-    runtime='24h',
-    slurm_account="mpmp_gpu",
-  # threads: 10
   params:
     number_of_models=config['colabfold']['number_of_models']
   output:
