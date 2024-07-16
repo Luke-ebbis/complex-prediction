@@ -91,7 +91,7 @@ rule install_easy_graph:
   conda:
     "envs/utils.yml"
   output:
-    touch("results/checkpoints/install_easy_graph")
+    touch("results/.checkpoints/install_easy_graph")
   shell:
     """
     cpan -i App::cpanminus
@@ -105,7 +105,7 @@ rule build_ascii_graph:
   conda:
     "envs/utils.yml"
   input:
-    "results/checkpoints/install_easy_graph"
+    "results/.checkpoints/install_easy_graph"
   output:
     "results/method-simple.ascii"
   shell:
