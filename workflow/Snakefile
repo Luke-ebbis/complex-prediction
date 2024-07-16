@@ -24,6 +24,9 @@ rule all:
     expand("results/data/{protein_complex}/combfold",
         protein_complex=INPUTS)
 
+TOOL_DIR = "tools"
+include: "rules/helpers.smk"
+
 ##
 ## Rules
 ## ------

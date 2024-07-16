@@ -1,0 +1,15 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - make>=4.3,<5
+  - cxx-compiler>=1.7.0,<1.8
+  - boost>=1.84.0,<1.85
+  - biopython
+  - scipy
+  - numpy
+  - pip
+  - libboost
+  - libboost-devel
+  - gcc>=12.3.0,<12.4
+
