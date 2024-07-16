@@ -8,3 +8,5 @@ dependencies:
   - colabfold
   - cuda-nvcc
   - pip
+  - pip:
+    - jax[cuda12_pip]
