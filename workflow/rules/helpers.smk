@@ -3,6 +3,7 @@
 
 TOOL_DIR = "tools"
 
+
 rule prepare_github:
   """Make sure that the git submodules are availible.
   """
