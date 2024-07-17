@@ -273,6 +273,13 @@ rule combfold:
     rm output-{wildcards.protein_complex} -r
     """
 
+
+rule relax:
+  conda:
+    "envs/fold.yml"
+  input: "data/test.pdb"
+  shell: "python workflow/scripts/post-process/relax.py"
+
 ## help:
 ##    Show the help.
 ##

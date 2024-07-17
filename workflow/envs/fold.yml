@@ -8,3 +8,6 @@ dependencies:
   - colabfold
   - cuda-nvcc
   - pip
+  - openmm=7.7.0
+  - pip:
+    - alphafold-colabfold
