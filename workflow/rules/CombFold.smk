@@ -1,5 +1,5 @@
 include: "helpers.smk"
-
+TOOL_DIR = "tools"
 ## preprocess:
 ##    Preprocess the input JSON files.
 ##
@@ -83,6 +83,6 @@ rule combfold:
     """
     mkdir {output} -p
     set +e
-    python3  {TOOLS_DIR}/CombFold/scripts/run_on_pdbs.py {input.json}  \
+    python3  {TOOL_DIR}/CombFold/scripts/run_on_pdbs.py {input.json}  \
       {input.pdb} {output}
     """

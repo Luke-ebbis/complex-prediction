@@ -36,13 +36,11 @@ include: "rules/CombFold.smk"
 
 localrules: 
   preprocess,
-  run_internet_rules, 
-  setup_cuda, 
-  setup_combfold, 
   produce_fasta_pairs, 
   gather_pdb_pairs, 
   produce_fasta_groups, 
-  gather_pdb_groups
+  gather_pdb_groups,
+  gather_pdb
 
 
 ## help:
