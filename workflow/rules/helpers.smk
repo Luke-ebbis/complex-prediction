@@ -110,5 +110,5 @@ rule gather_pdb:
     ls {input.groups} -l
     mkdir {output} -p
     cp {input.pairs}/*pdb {output}
-    $(cp {input.groups}/*pdb {output} | true)
+    cp {input.groups}/*pdb {output} 2>/dev/null || :
     """
