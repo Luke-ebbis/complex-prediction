@@ -105,6 +105,7 @@ rule gather_pdb:
     directory("results/data/{protein_complex}/subunits/pdb")
   shell:
     """
+    set +e
     echo "Collating the structures..."
     ls {input.pairs} -l
     ls {input.groups} -l
