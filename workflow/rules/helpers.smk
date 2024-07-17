@@ -105,7 +105,7 @@ rule gather_pdb:
     directory("results/data/{protein_complex}/subunits/pdb")
   shell:
     """
-    cpalways () { cp $1 $2 2>/dev/null ; return 0 ; }
+    cpalways () {{ cp $1 $2 2>/dev/null ; return 0 ; }}
     echo "Collating the structures..."
     ls {input.pairs} -l
     ls {input.groups} -l
