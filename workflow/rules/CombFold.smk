@@ -1,7 +1,7 @@
 import os
 
 include: "helpers.smk"
-TOOL_DIR = "tools"
+TOOLS_DIR = "tools"
 ## preprocess:
 ##    Preprocess the input JSON files.
 ##
@@ -34,7 +34,7 @@ checkpoint produce_fasta_pairs:
     directory("results/data/{protein_complex}/subunits/fasta-pairs/")
   shell:
     """
-    python3 {TOOL_DIR}/CombFold/scripts/prepare_fastas.py {input[0]} \
+    python3 {TOOLS_DIR}/CombFold/scripts/prepare_fastas.py {input[0]} \
       --stage pairs --output-fasta-folder {output[0]} \
       --max-af-size 1800
     """
@@ -54,7 +54,7 @@ checkpoint produce_fasta_groups:
     directory("results/data/{protein_complex}/subunits/fasta-groups/")
   shell:
     """
-    python3 {TOOL_DIR}/CombFold/scripts/prepare_fastas.py {input[0]} \
+    python3 {TOOLS_DIR}/CombFold/scripts/prepare_fastas.py {input[0]} \
       --stage groups --output-fasta-folder {output[0]} \
       --max-af-size 1800 \
       --input-pairs-results {input[1]}
@@ -85,7 +85,7 @@ checkpoint combfold:
     """
     mkdir {output} -p
     set +e
-    python3  {TOOL_DIR}/CombFold/scripts/run_on_pdbs.py {input.json}  \
+    python3  {TOOLS_DIR}/CombFold/scripts/run_on_pdbs.py {input.json}  \
       {input.pdb} {output}
     """
 
