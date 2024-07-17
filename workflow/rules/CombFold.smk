@@ -1,5 +1,6 @@
 include: "helpers.smk"
-## preprocess:                
+
+## preprocess:
 ##    Preprocess the input JSON files.
 ##
 rule preprocess:
@@ -17,7 +18,7 @@ rule preprocess:
     """
 
 
-## produce_fasta_pair: 
+## produce_fasta_pair:
 ##    Convert the json's to fasta inputs.
 ##
 checkpoint produce_fasta_pairs:
@@ -57,7 +58,7 @@ checkpoint produce_fasta_groups:
       --input-pairs-results {input[1]}
     """
 
-## combfold:                  
+## combfold:
 ##    Calculate the protein complexes from the (higher order) pairs
 ##    predicted by the colabfold steps.
 ##
@@ -65,7 +66,7 @@ rule combfold:
   """Run the combfold programme
 
   Note --- If a high scoring assembly cannot be found, the programme will
-            exit with a nonzero exit code. That is why the usage of 
+            exit with a nonzero exit code. That is why the usage of
             `set +e` is needed.
   """
   conda: "../envs/CombFold.yml"
@@ -80,11 +81,8 @@ rule combfold:
   threads: 15
   shell:
     """
+    mkdir {output} -p
     set +e
-    cd {TOOL_DIR}/CombFold
-    pixi run python3 scripts/run_on_pdbs.py ../../../../{input.json}  \
-      ../../../../{input.pdb} output-{wildcards.protein_complex}
-    mkdir ../../../../{output} -p
-    mv output-{wildcards.protein_complex}/* ../../../../{output}
-    rm output-{wildcards.protein_complex} -r
+    python3  {TOOLS_DIR}/CombFold/scripts/run_on_pdbs.py {input.json}  \
+      {input.pdb} {output}
     """
