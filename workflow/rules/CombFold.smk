@@ -89,9 +89,10 @@ checkpoint combfold:
       {input.pdb} {output}
     """
 
-def get_combfold_structures(wildcards):
+def get_combfold_structures_here(wildcards):
   output_folder = checkpoints.combfold.get(**wildcards).output[0]
-  pdbs = [f for f in os.listdir(output_folder) if 
-    f.endswith(".pdb") or f.endswith("cif")]
-  return pdb
+  pdbs = [f for f in os.listdir(f"{output_folder}/assembled_results") if 
+    f.endswith(".pdb") or f.endswith("cif")].pop()
+  return f"{output_folder}/assembled_results/{pdbs}"
+
 
