@@ -1,3 +1,5 @@
+import os
+
 include: "helpers.smk"
 TOOL_DIR = "tools"
 ## preprocess:
@@ -62,7 +64,7 @@ checkpoint produce_fasta_groups:
 ##    Calculate the protein complexes from the (higher order) pairs
 ##    predicted by the colabfold steps.
 ##
-rule combfold:
+checkpoint combfold:
   """Run the combfold programme
 
   Note --- If a high scoring assembly cannot be found, the programme will
@@ -86,3 +88,10 @@ rule combfold:
     python3  {TOOL_DIR}/CombFold/scripts/run_on_pdbs.py {input.json}  \
       {input.pdb} {output}
     """
+
+def get_combfold_structures(wildcards):
+  output_folder = checkpoints.combfold.get(**wildcards).output[0]
+  pdbs = [f for f in os.listdir(output_folder) if 
+    f.endswith(".pdb") or f.endswith("cif")]
+  return pdb
+
