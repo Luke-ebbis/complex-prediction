@@ -58,6 +58,7 @@ checkpoint produce_fasta_groups:
     max_size=3000
   shell:
     """
+    set +e # don't fail if there are no good pairs.
     python3 {TOOLS_DIR}/CombFold/scripts/prepare_fastas.py {input[0]} \
       --stage groups --output-fasta-folder {output[0]} \
       --max-af-size {params.max_size} \
