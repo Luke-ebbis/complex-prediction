@@ -32,11 +32,13 @@ checkpoint produce_fasta_pairs:
     "results/.checkpoints/installed_CombFold"
   output:
     directory("results/data/{protein_complex}/subunits/fasta-pairs/")
+  params:
+    max_size=3000
   shell:
     """
     python3 {TOOLS_DIR}/CombFold/scripts/prepare_fastas.py {input[0]} \
       --stage pairs --output-fasta-folder {output[0]} \
-      --max-af-size 1800
+      --max-af-size {params.max_size}
     """
 
 
@@ -52,11 +54,13 @@ checkpoint produce_fasta_groups:
     "results/.checkpoints/installed_CombFold"
   output:
     directory("results/data/{protein_complex}/subunits/fasta-groups/")
+  params:
+    max_size=3000
   shell:
     """
     python3 {TOOLS_DIR}/CombFold/scripts/prepare_fastas.py {input[0]} \
       --stage groups --output-fasta-folder {output[0]} \
-      --max-af-size 1800 \
+      --max-af-size {params.max_size} \
       --input-pairs-results {input[1]}
     """
 
