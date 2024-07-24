@@ -62,7 +62,7 @@ checkpoint produce_fasta_groups:
 ##    Calculate the protein complexes from the (higher order) pairs
 ##    predicted by the colabfold steps.
 ##
-rule combfold:
+checkpoint combfold:
   """Run the combfold programme
 
   Note --- If a high scoring assembly cannot be found, the programme will
